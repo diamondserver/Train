@@ -1,0 +1,10 @@
+name: Train
+main: Train\Main
+version: 1.0.0
+api:
+- 3.0.0
+- 3.0.0-ALPHA10
+- 3.0.0-ALPHA11
+- 4.0.0
+load: POSTWORLD
+author: [R_Funa,masaiwasa]
