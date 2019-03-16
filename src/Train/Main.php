@@ -21,14 +21,26 @@ class Main extends PluginBase implements Listener{
 		{
 			@mkdir($this->getDataFolder(), 0744, true);
 		}
-		$this->ts = new Config($this->getDataFolder() . "TrainS.yml", Config::YAML);
-		$this->te = new Config($this->getDataFolder() . "TrainE.yml", Config::YAML);
-		$this->tx = new Config($this->getDataFolder() . "TrainX.yml", Config::YAML);
+		$this->ts = new Config($this->getDataFolder() . "TrainS.yml", Config::YAML, array(
+			'1' => '座標',
+			'2' => '座標'
+		));
+		$this->te = new Config($this->getDataFolder() . "TrainE.yml", Config::YAML, array(
+			'1' => '座標',
+			'2' => '座標'
+		));
+		$this->tx = new Config($this->getDataFolder() . "TrainX.yml", Config::YAML, array(
+			'1' => '座標',
+			'2' => '座標'
+		));
+		$this->pn = new Config($this->getDataFolder() . "Player.yml", Config::YAML);
 
 		//late
 
 		$players = Server::getInstance()->getOnlinePlayers();
 		foreach ($players as $p) {
+
+			$name = $p->getName();
 
 			$tspos = $this->ts->get("".$this->n.""); //Configより電車の片端の座標取得
 			$spos = explode(",", $tspos); //各座標ごとに分割
@@ -68,10 +80,27 @@ class Main extends PluginBase implements Listener{
 
 			if($x1<=$px && $x2>=$px && $z1>=$pz && $z2<=$pz)
 			{
-				//late
-				$pos = new Position($x3, $y3, $z3, "town");
-				$p->teleport($pos);
+				$poss = new Position($x3, $y3, $z3, "town");
+				$p->teleport($poss);
+				$this->pn->set($name, "in");
+				$this->pn->save();
 			}
+
+			//late
+
+			if($this->pn->exists($name)){
+				$pose = new Position($x4, $y4, $z4, "town");
+				$p->teleport($pose);
+				$this->pn->remove($name);
+				$this->pn->save();
+			}
+
+			if($this->ts->exists($i)){
+				$this->n++;
+			}else{
+				$this->n = 1;
+			}
+
 		}
 	}
    
