@@ -68,12 +68,6 @@ class Main extends PluginBase implements Listener{
 			$y4 = (Int)$s2pos[2];
 			$z4 = (Int)$s2pos[3];
 
-			$te2pos = $this->te->get("".$i.""); //Configより電車の片端の座標取得
-			$e2pos = explode(",", $te2pos); //各座標ごとに分割
-			$x5 = (Int)$e2pos[1]; //Int型に変換
-			$y5 = (Int)$e2pos[2];
-			$z5 = (Int)$e2pos[3];
-
 			$px = $p->getX();
 			$py = $p->getY();
 			$pz = $p->getZ();
