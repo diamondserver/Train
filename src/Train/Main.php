@@ -35,8 +35,8 @@ class Main extends PluginBase implements Listener{
 		));
 		$this->pn = new Config($this->getDataFolder() . "Player.yml", Config::YAML);
 
-		//late
-		$this->getScheduler();
+		$this->getScheduler(); //late
+
 		$players = Server::getInstance()->getOnlinePlayers();
 		foreach ($players as $p) {
 
