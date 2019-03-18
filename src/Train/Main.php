@@ -9,6 +9,7 @@ use pocketmine\event\Listener;
 use pocketmine\math\Vector3;
 use pocketmine\level\Position;
 use pocketmine\utils\Config;
+use pocketmine\scheduler\Task;
 
 class Main extends PluginBase implements Listener{
 
@@ -35,8 +36,11 @@ class Main extends PluginBase implements Listener{
 		));
 		$this->pn = new Config($this->getDataFolder() . "Player.yml", Config::YAML);
 
-		$this->getScheduler(); //late
+		$this->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this,"TrainTask"]), 900);//late
+	}
 
+	public function TrainTask()
+	{
 		$players = Server::getInstance()->getOnlinePlayers();
 		foreach ($players as $p) {
 
@@ -80,8 +84,6 @@ class Main extends PluginBase implements Listener{
 				$this->pn->save();
 			}
 
-			//late
-
 			if($this->pn->exists($name)){
 				$pose = new Position($x4, $y4, $z4, "town");
 				$p->teleport($pose);
@@ -96,6 +98,7 @@ class Main extends PluginBase implements Listener{
 			}
 
 		}
+		$this->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this,"TrainTask"]), 2400);//late
 	}
    
 }
