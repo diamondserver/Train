@@ -10,13 +10,12 @@ use pocketmine\math\Vector3;
 use pocketmine\level\Position;
 use pocketmine\utils\Config;
 use pocketmine\scheduler\Task;
+use taskapi\Plan;
 
 class Main extends PluginBase implements Listener{
-
-	public $n = 1;
-	
 	public function onEnable()
 	{
+		Plan::register($this);
      $this->getServer()->getPluginManager()->registerEvents($this,$this);
 		if(!file_exists($this->getDataFolder()))
 		{
@@ -34,37 +33,49 @@ class Main extends PluginBase implements Listener{
 			'1' => '座標',
 			'2' => '座標'
 		));
-		$this->pn = new Config($this->getDataFolder() . "Player.yml", Config::YAML);
+		$this->pn = new Config($this->getDataFolder() . "Player.yml", Config::YAML, array(
+			'回数' => 1
+		));
 
-		$this->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this,"TrainTask"]), 900);//late
+		Plan::repeat("TrainTask", [$this], 120);//late
+		$this->getServer()->broadcastMessage("§f[§aTrain§f] 電車は2分おきに出発します。");
 	}
+}
 
-	public function TrainTask()
-	{
-		$players = Server::getInstance()->getOnlinePlayers();
+	class TrainTask extends Task
+{
+    function __construct($owner)
+    {
+        $this->owner = $owner;
+    }
+
+    function onRun(int $t)
+    {
+    	$n = $this->pn->get("回数");
+    	$players = Server::getInstance()->getOnlinePlayers();
 		foreach ($players as $p) {
 
 			$name = $p->getName();
 
-			$tspos = $this->ts->get("".$this->n.""); //Configより電車の片端の座標取得
+			$tspos = $this->ts->get("".$n.""); //Configより電車の片端の座標取得
 			$spos = explode(",", $tspos); //各座標ごとに分割
 			$x1 = (Int)$spos[1]; //Int型に変換
 			$y1 = (Int)$spos[2];
 			$z1 = (Int)$spos[3];
 
-			$tepos = $this->te->get("".$this->n.""); //Configより電車の片端の座標取得
+			$tepos = $this->te->get("".$n.""); //Configより電車の片端の座標取得
 			$epos = explode(",", $tepos); //各座標ごとに分割
 			$x2 = (Int)$epos[1]; //Int型に変換
 			$y2 = (Int)$epos[2];
 			$z2 = (Int)$epos[3];
 
-			$txpos = $this->tx->get("".$this->n.""); //Configより中継電車の座標取得
+			$txpos = $this->tx->get("".$n.""); //Configより中継電車の座標取得
 			$xpos = explode(",", $txpos); //各座標ごとに分割
 			$x3 = (Int)$xpos[1]; //Int型に変換
 			$y3 = (Int)$xpos[2];
 			$z3 = (Int)$xpos[3];
 
-			$i = $this->n + 1;
+			$i = $n + 1;
 
 			$ts2pos = $this->ts->get("".$i.""); //Configより電車の片端の座標取得
 			$s2pos = explode(",", $ts2pos); //各座標ごとに分割
@@ -90,15 +101,13 @@ class Main extends PluginBase implements Listener{
 				$this->pn->remove($name);
 				$this->pn->save();
 			}
-
-			if($this->ts->exists($i)){
-				$this->n++;
+			$i2 = $i + 1;
+			if($this->ts->exists($i2)){
+				$this->pn->set("回数", $i);
 			}else{
-				$this->n = 1;
+				$this->pn->set("回数", 1);
 			}
 
 		}
-		$this->getScheduler()->scheduleRepeatingTask(new CallbackTask([$this,"TrainTask"]), 2400);//late
-	}
-   
+    }
 }
